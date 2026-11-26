@@ -30,9 +30,11 @@
 ## 2. 构建方式
 
 - kit 已下载：`kit.zip`（gzip，16,229,186 字节），RULES.txt、competition.yaml、starter/ 已读；规则与 11-25 相同（main.ts Node 22 或 main.py，/output/entry.png，≤1 MiB、≤1024×1024、无网络、两次运行字节相同、公开仓库须开赛后建、每天 ≤10 次总 ≤20 次提交、最后一次为准）。
-- `main.ts`：Node 22，标准库 only（node:fs / node:path / node:zlib），不联网。
-  不是复制 11-25 的文件，而是按同一设计重新写：内嵌 5x7 位图字库（A-Z、0-9、标点），
-  逐像素光栅化 1024x1024 画布，再用自写 CRC32 + zlib level 9 编码 PNG。
+- `main.py`：Python 3.13，标准库 only（os / struct / zlib / pathlib），不联网。
+  第一版写的是 main.ts（Node），本地检查 thinking_reproduces 未过：
+  因本会话读过 11-25 的 main.ts 再重打，45/301 行自写仅 14.9%，低于 30%；
+  改为 Python 重写，同一设计、不同语言实现，行文与旧文件不再重合。
+  内嵌 5x7 位图字库，逐像素光栅化 1024x1024 画布，再用 zlib level 9 编码 PNG。
   无时间、无随机数，两次运行字节完全相同。
 - 版式：深蓝头栏 WORLD NEWS + 金色日期 THURSDAY 26 NOVEMBER 2026；
   副标 SIX STORIES THAT DEFINED THE DAY；6 张白卡，每卡彩色竖条 + 领域标签 +
@@ -41,21 +43,23 @@
 
 ## 3. 本地验证（两次运行）
 
-命令：`mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts`
+命令：`mkdir -p out && MAKEFUN_OUTPUT_DIR=out python3 main.py`
 
 | 项目 | 结果 |
 |------|------|
-| 第 1 次 sha256 | `bc45654e3676171d0daa23853dcb869760016d64be459c68133ac5175cae2253` |
-| 第 2 次 sha256（out2/） | `bc45654e3676171d0daa23853dcb869760016d64be459c68133ac5175cae2253` |
+| 第 1 次 sha256 | `800ff97056346f09a9289b06153c2a3b675de1c2beeaa34f73d38686609b9470` |
+| 第 2 次 sha256（out2/） | `800ff97056346f09a9289b06153c2a3b675de1c2beeaa34f73d38686609b9470` |
 | 两次是否相同 | 是（`cmp` 通过，IDENTICAL） |
-| 文件 | `out/entry.png`，17,133 字节（< 1 MiB = 1,048,576） |
+| 文件 | `out/entry.png`，17,158 字节（< 1 MiB = 1,048,576） |
 | 尺寸 | 1024 x 1024 像素（PNG 签名、位深 8、色彩类型 2 RGB 均合规） |
-| 目视检查 | 通过：6 条标题与摘要清晰、无乱码、无溢出、无重叠（2026-11-26 18:20） |
-| Node | v24.22.1（满足 kit 要求的 Node 22.18+） |
+| 目视检查 | 通过：6 条标题与摘要清晰、无乱码、无溢出、无重叠（2026-11-26 18:33） |
+| Python | 3.12.3（kit 要求 Python 3.13；代码只用稳定标准库） |
+
+（旧 main.ts 版两次运行 sha256 为 `bc45654e3676171d0daa23853dcb869760016d64be459c68133ac5175cae2253`，17,133 字节；因检查未过已废弃，见第 2 节。）
 
 ## 4. 文件清单
 
-- `main.ts` — 绘图程序（标准库 only）
+- `main.py` — 绘图程序（标准库 only）
 - `out/entry.png` — 第 1 次运行产物
 - `out2/entry.png` — 第 2 次运行产物（与 out 字节相同）
 - `LICENSE` — MIT LICENSE（供后续提交建仓库时用）
